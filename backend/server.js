@@ -28,21 +28,35 @@ connectDB();
 
 const app = express();
 
-const allowedOrigins = process.env.FRONTEND_URL
-  ? [process.env.FRONTEND_URL]
-  : ['http://localhost:5173', 'http://localhost:3000'];
+const configuredFrontendOrigins = process.env.FRONTEND_URL
+  ? process.env.FRONTEND_URL.split(',').map((origin) => origin.trim()).filter(Boolean)
+  : [];
 
-app.use(cors({
+const railwayOrigin = process.env.RAILWAY_PUBLIC_DOMAIN
+  ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
+  : null;
+
+const allowedOrigins = [
+  ...configuredFrontendOrigins,
+  ...(railwayOrigin ? [railwayOrigin] : []),
+  'http://localhost:5173',
+  'http://localhost:3000',
+];
+
+const corsOptions = {
   origin: function (origin, callback) {
     if (!origin) return callback(null, true);
     if (allowedOrigins.indexOf(origin) !== -1) return callback(null, true);
     return callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
-}));
+};
 
 app.use(express.json());
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
+
+// Apply CORS to API routes only. Static frontend assets should not be CORS-gated.
+app.use('/api', cors(corsOptions));
 
 // API routes
 app.use('/api/auth', authRoutes);
