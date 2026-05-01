@@ -4,9 +4,7 @@
   "description": "Team Task Manager - Full Stack App",
   "scripts": {
     "start": "node backend/server.js",
-    "build": "cd frontend && npm install && npm run build",
-    "install:backend": "npm install --prefix backend",
-    "postinstall": "npm run install:backend"
+    "build": "npm install --prefix frontend && npm run build --prefix frontend"
   },
   "engines": {
     "node": ">=18.0.0"
