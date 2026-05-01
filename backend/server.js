@@ -61,7 +61,9 @@ app.use('/api/activities', activityRoutes);
 
 // Serve frontend static files in production
 if (process.env.NODE_ENV === 'production') {
-  const frontendDist = path.join(__dirname, '../frontend/dist');
+  // Works both locally (../frontend/dist) and on Railway (/app/frontend/dist)
+  const frontendDist = path.join(__dirname, '..', 'frontend', 'dist');
+  console.log('Serving static files from:', frontendDist);
   app.use(express.static(frontendDist));
   app.get('/{*splat}', (req, res) => {
     res.sendFile(path.join(frontendDist, 'index.html'));
